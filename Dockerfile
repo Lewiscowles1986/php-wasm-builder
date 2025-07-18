@@ -93,11 +93,10 @@ RUN mkdir -p /build && \
 	-s MAXIMUM_MEMORY=128mb -s INITIAL_MEMORY=128mb -s ALLOW_MEMORY_GROWTH=0 \
 	-s ASSERTIONS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s MODULARIZE=1 -s INVOKE_RUN=0 -s LZ4=1 -s EXPORT_ES6=1 \
 	-s EXPORT_NAME=createPhpModule \
-	--embed-file examples \
-	phpw.o php-src/.libs/libphp.a \
+	phpw.o php-src/libs/libphp7.a \
 	/local/install/lib/libxml2.a \
 	/local/install/lib/libonig.a \
-	php-src/.libs/libphp.a
+	php-src/libs/libphp7.a
 
 RUN mkdir -p /build && \
 	emcc -o /build/php-cli.mjs \
@@ -108,11 +107,10 @@ RUN mkdir -p /build && \
 	-s MAXIMUM_MEMORY=128mb -s INITIAL_MEMORY=128mb -s ALLOW_MEMORY_GROWTH=0 \
 	-s ASSERTIONS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s MODULARIZE=1 -s INVOKE_RUN=0 -s LZ4=1 -s EXPORT_ES6=1 \
 	-s EXPORT_NAME=createPhpModule \
-	--embed-file examples \
-	phpw.o php-src/.libs/libphp.a \
+	phpw.o php-src/libs/libphp7.a \
 	/local/install/lib/libxml2.a \
 	/local/install/lib/libonig.a \
-	php-src/.libs/libphp.a
+	php-src/libs/libphp7.a
 
 # Save file
 FROM scratch
