@@ -87,7 +87,7 @@ RUN cd php-src && \
 # PHP <= 7.3 is not very good at detecting the presence of the POSIX readdir_r function
 # so we need to force it to be enabled.
 RUN echo "#define HAVE_POSIX_READDIR_R 1" >> "/local/src/php-src/main/php_config.h"
-COPY ./php7.x.patch /local/src/php7.patch
+COPY ./php7.3.patch /local/src/php7.patch
 RUN git apply --no-index php7.patch
 
 # Compile WASM shim
