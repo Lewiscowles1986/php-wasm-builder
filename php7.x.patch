@@ -1,0 +1,16 @@
+diff --git a/php-src/main/streams/cast.c b/php-src/main/streams/cast.c
+--- a/php-src/main/streams/cast.c
++++ b/php-src/main/streams/cast.c
+@@ -113,10 +113,10 @@ static int stream_cookie_seeker(void *cookie, __off64_t *position, int whence)
+ 	return 0;
+ }
+ # else
+-static int stream_cookie_seeker(void *cookie, zend_off_t position, int whence)
++static int stream_cookie_seeker(void *cookie, long long *position, int whence)
+ {
+ 
+-	return php_stream_seek((php_stream *)cookie, position, whence);
++	return php_stream_seek((php_stream *)cookie, *position, whence);
+ }
+ # endif
+ 
