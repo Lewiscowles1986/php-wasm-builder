@@ -81,7 +81,6 @@ ENV PATH="${PATH}:/usr/local/bison/bin"
 RUN cd php-src && \
 	emconfigure ./configure --enable-embed=static \
 	--disable-all --without-pcre-jit --disable-fiber-asm --disable-cgi --disable-cli --disable-phpdbg \
-	--with-libxml --enable-simplexml --enable-xml --enable-xmlreader --enable-xmlwriter --enable-dom \
 	--enable-mbstring \
 	--enable-calendar --enable-ctype
 
