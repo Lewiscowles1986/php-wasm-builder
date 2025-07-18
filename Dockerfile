@@ -13,6 +13,7 @@ RUN apt-get update && \
 	build-essential \
 	automake \
 	autoconf \
+	bison \
 	libtool \
 	pkg-config \
 	flex \
@@ -21,9 +22,7 @@ RUN apt-get update && \
 	git \
 	pv \
 	ca-certificates \
-	python3 \
-	wget && \
-	apt-get remove --purge -yqq bison
+	python3
 
 # Install emscripten sdk
 RUN \
@@ -65,30 +64,12 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git libxml2 --branch v$LIBX
 ENV LIBXML_LIBS="-L/local/install"
 ENV LIBXML_CFLAGS="-I/local/install/include/libxml2"
 
-COPY ./bison27.patch /local/src/bison27.patch
-RUN wget http://ftp.gnu.org/gnu/bison/bison-2.7.tar.gz && \
-    tar -xvf bison-2.7.tar.gz && \
-    rm bison-2.7.tar.gz && \
-    cd bison-2.7 && \
-    git apply --no-index /local/src/bison27.patch && \
-    ./configure --prefix=/usr/local/bison --with-libiconv-prefix=/usr/local/libiconv/ && \
-    make && \
-    make install
-
-ENV PATH="${PATH}:/usr/local/bison/bin"
-
 # Configure PHP
 RUN cd php-src && \
 	emconfigure ./configure --enable-embed=static \
 	--disable-all --without-pcre-jit --disable-fiber-asm --disable-cgi --disable-cli --disable-phpdbg \
 	--enable-mbstring \
 	--enable-calendar --enable-ctype
-
-# PHP <= 7.3 is not very good at detecting the presence of the POSIX readdir_r function
-# so we need to force it to be enabled.
-RUN echo "#define HAVE_POSIX_READDIR_R 1" >> "/local/src/php-src/main/php_config.h"
-COPY ./php7.x.patch /local/src/php7.patch
-RUN git apply --no-index php7.patch
 
 # Compile WASM shim
 RUN \
