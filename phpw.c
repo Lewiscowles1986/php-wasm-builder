@@ -28,6 +28,18 @@
 #include "zend_exceptions.h"
 #include "zend_closures.h"
 
+#ifndef HAVE_ZEND_STREAM_INIT_FILENAME
+/* For PHP < 7.4, define a fallback */
+#if PHP_VERSION_ID < 70400
+ZEND_API void zend_stream_init_filename(zend_file_handle *handle, const char *filename) {
+	memset(handle, 0, sizeof(zend_file_handle));
+	handle->type = ZEND_HANDLE_FILENAME;
+	handle->filename = filename ? zend_string_init(filename, strlen(filename), 0) : NULL;
+}
+#endif
+#define HAVE_ZEND_STREAM_INIT_FILENAME 1
+#endif
+
 int main(int argc, char **argv)
 {
 	php_embed_init(0, NULL);
