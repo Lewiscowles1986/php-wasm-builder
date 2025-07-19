@@ -1,0 +1,32 @@
+diff --git a/php-src/main/streams/cast.c b/php-src/main/streams/cast.c
+index 78073c61879..b0763a4ade9 100644
+--- a/php-src/main/streams/cast.c
++++ b/php-src/main/streams/cast.c
+@@ -110,11 +110,11 @@ static ssize_t stream_cookie_writer(void *cookie, const char *buffer, size_t siz
+ }
+ 
+ # ifdef COOKIE_SEEKER_USES_OFF64_T
+-static int stream_cookie_seeker(void *cookie, __off64_t *position, int whence)
++static int stream_cookie_seeker(void *cookie, long long *position, int whence)
+ {
+ 	TSRMLS_FETCH();
+ 
+-	*position = php_stream_seek((php_stream *)cookie, (off_t)*position, whence);
++	*position = php_stream_seek((php_stream *)cookie, (long long)*position, whence);
+ 
+ 	if (*position == -1) {
+ 		return -1;
+@@ -122,11 +122,11 @@ static int stream_cookie_seeker(void *cookie, __off64_t *position, int whence)
+ 	return 0;
+ }
+ # else
+-static int stream_cookie_seeker(void *cookie, off_t position, int whence)
++static int stream_cookie_seeker(void *cookie, long long *position, int whence)
+ {
+ 	TSRMLS_FETCH();
+ 
+-	return php_stream_seek((php_stream *)cookie, position, whence);
++	return php_stream_seek((php_stream *)cookie, *position, whence);
+ }
+ # endif
+ 

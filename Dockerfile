@@ -65,30 +65,40 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git libxml2 --branch v$LIBX
 ENV LIBXML_LIBS="-L/local/install"
 ENV LIBXML_CFLAGS="-I/local/install/include/libxml2"
 
-COPY ./bison27.patch /local/src/bison27.patch
-RUN wget http://ftp.gnu.org/gnu/bison/bison-2.7.tar.gz && \
-    tar -xvf bison-2.7.tar.gz && \
-    rm bison-2.7.tar.gz && \
-    cd bison-2.7 && \
-    git apply --no-index /local/src/bison27.patch && \
+COPY pcre-8.45.tar.gz /local/src/
+RUN tar -xzf pcre-8.45.tar.gz && \
+	cd pcre-8.45 && \
+	emconfigure ./configure --prefix=/usr/local/pcre-8.45 \
+			--disable-jit --disable-shared \
+            --enable-utf8 \
+            --enable-unicode-properties && \
+	make -j$(nproc) && \
+	make install
+
+COPY ./bison26.patch /local/src/bison26.patch
+RUN wget http://ftp.gnu.org/gnu/bison/bison-2.6.4.tar.gz && \
+    tar -xvf bison-2.6.4.tar.gz && \
+    rm bison-2.6.4.tar.gz && \
+    cd bison-2.6.4 && \
+	git apply --no-index /local/src/bison26.patch && \
     ./configure --prefix=/usr/local/bison --with-libiconv-prefix=/usr/local/libiconv/ && \
     make && \
     make install
 
 ENV PATH="${PATH}:/usr/local/bison/bin"
 
-# Configure PHP
 RUN cd php-src && \
-	emconfigure ./configure --enable-embed=static \
-	--disable-all --without-pcre-jit --disable-fiber-asm --disable-cgi --disable-cli --disable-phpdbg \
-	--enable-mbstring \
+	emconfigure ./configure --disable-all --disable-cgi --disable-cli \
+	--host=x86_64-linux-gnu --build=x86_64-linux-gnu \
+	--with-pcre-regex=/usr/local/pcre-8.45 --with-pcre-dir=/usr/local/pcre-8.45 \
+	--enable-embed=static \
 	--enable-calendar --enable-ctype
 
 # PHP <= 7.3 is not very good at detecting the presence of the POSIX readdir_r function
 # so we need to force it to be enabled.
 RUN echo "#define HAVE_POSIX_READDIR_R 1" >> "/local/src/php-src/main/php_config.h"
-COPY ./php7.3.patch /local/src/php7.patch
-RUN git apply --no-index php7.patch
+COPY ./php5-glibc-fix.patch /local/src/php5-glibc-fix.patch
+RUN git apply --no-index php5-glibc-fix.patch --ignore-whitespace
 
 # Compile WASM shim
 RUN \
@@ -111,10 +121,11 @@ RUN mkdir -p /build && \
 	-s MAXIMUM_MEMORY=128mb -s INITIAL_MEMORY=128mb -s ALLOW_MEMORY_GROWTH=0 \
 	-s ASSERTIONS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s MODULARIZE=1 -s INVOKE_RUN=0 -s LZ4=1 -s EXPORT_ES6=1 \
 	-s EXPORT_NAME=createPhpModule \
-	phpw.o php-src/libs/libphp7.a \
+	phpw.o php-src/libs/libphp5.a \
 	/local/install/lib/libxml2.a \
 	/local/install/lib/libonig.a \
-	php-src/libs/libphp7.a
+	/local/src/pcre-8.45/.libs/libpcre.a \
+	php-src/libs/libphp5.a
 
 RUN mkdir -p /build && \
 	emcc -o /build/php-cli.mjs \
@@ -125,10 +136,11 @@ RUN mkdir -p /build && \
 	-s MAXIMUM_MEMORY=128mb -s INITIAL_MEMORY=128mb -s ALLOW_MEMORY_GROWTH=0 \
 	-s ASSERTIONS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s MODULARIZE=1 -s INVOKE_RUN=0 -s LZ4=1 -s EXPORT_ES6=1 \
 	-s EXPORT_NAME=createPhpModule \
-	phpw.o php-src/libs/libphp7.a \
+	phpw.o php-src/libs/libphp5.a \
 	/local/install/lib/libxml2.a \
 	/local/install/lib/libonig.a \
-	php-src/libs/libphp7.a
+	/local/src/pcre-8.45/.libs/libpcre.a \
+	php-src/libs/libphp5.a
 
 # Save file
 FROM scratch

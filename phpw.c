@@ -34,7 +34,12 @@
 ZEND_API void zend_stream_init_filename(zend_file_handle *handle, const char *filename) {
 	memset(handle, 0, sizeof(zend_file_handle));
 	handle->type = ZEND_HANDLE_FILENAME;
+#if PHP_VERSION_ID < 70000
+    /* PHP 5.x: filename is just a C string */
+    handle->filename = (char *)filename;
+#else
 	handle->filename = filename ? zend_string_init(filename, strlen(filename), 0) : NULL;
+#endif
 }
 #endif
 #define HAVE_ZEND_STREAM_INIT_FILENAME 1
