@@ -1,3 +1,20 @@
+Note about this branch
+======================
+
+This branch built the PHP7.3 on https://lewiscowles1986.github.io/experiments/wasm/php/
+
+It does not contain the HTML, or JS; both were borrowed from PHP.net to get a boilerplate up and running.
+
+It's quite likely I'm going to leave this where it is, as I only require a REPL, 
+with very limited PHP extensions.
+
+My Scope is smaller than Derick Rethans, the original author of this repo. In-fact XML is missing compared to the 8.x
+
+I also do not plan to integrate all the branches. For me the fact the artifact,
+has a common interface is enough for now.
+
+If you build something cool, please let me know.
+
 PHP WASM Builder
 ================
 
